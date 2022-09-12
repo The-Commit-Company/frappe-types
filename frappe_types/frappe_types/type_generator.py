@@ -11,6 +11,10 @@ def create_type_definition_file(doc, method=None):
         print("Generating type definition file for " + doctype.name)
         module = frappe.get_doc('Module Def', doctype.module)
 
+        if module.app_name == "frappe" or module.app_name == "erpnext":
+            print("Ignoring core app DocTypes")
+            return
+            
         app_path: Path = Path("../apps") / module.app_name
 
         if not app_path.exists():
