@@ -35,14 +35,24 @@ Now whenever you create or update any DocType on your local machine, the app wil
 ## Example
 
 Let's say you create a DocType in a module called "Project Management" called "Project" with the following fields:
+<br/>
 
+<img width="1058" alt="image" src="https://user-images.githubusercontent.com/19825455/189567982-87e3b28f-3627-4a96-87cc-eddee164f4c2.png">
 
-The app will automatically create a file called `Project.ts` at the path `<your_app_folder>/types/ProjectManagement/Project` with the following fields:
+<br/>
+
+The app will automatically create a file called `Project.ts` at the path `<your_app_folder>/types/ProjectManagement/Project` like this:
+
+(Notice that spaces in the Module and DocType names will be removed)
+
+<br/>
+
+<img width="1337" alt="image" src="https://user-images.githubusercontent.com/19825455/189568132-ecc79a9e-832a-4558-8102-2a9d919e5fed.png">
 
 
 <br/>
 
-## Where can I use this?
+## Where can you use this?
 
 If you are developing custom Frappe apps with a Frappe backend and a frontend single-page app using React/Vue/other frameworks, you can use this app to generate TypeScript definitions to be used in your frontend app. 
 
