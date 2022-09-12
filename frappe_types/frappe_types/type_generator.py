@@ -51,6 +51,8 @@ def generate_type_definition_content(doctype):
     content += "\tcreation: string\n\tname: string\n\tmodified: string\n\towner: string\n\tmodified_by: string\n\tdocstatus: 0 | 1 | 2\n\tparent?: string\n\tparentfield?: string\n\tparenttype?: string\n\tidx?: number\n"
 
     for field in doctype.fields:
+        if field.fieldtype in ["Section Break", "Column Break", "HTML", "Button", "Fold", "Heading", "Tab Break", "Break"]:
+            continue
         content += get_field_comment(field)
         content += "\t" + get_field_type_definition(field) + "\n"
 
