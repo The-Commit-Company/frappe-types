@@ -49,6 +49,16 @@ If you are developing custom Frappe apps with a Frappe backend and a frontend si
 
 <br/>
 
+## What features will we add next?
+
+1. Support for Table fields. Currently defaults to any[]
+2. Ability to define path for types folder and select apps for which types are to be generated
+3. Looking at how to improve speed so that DocType saving does not take a lot of time.
+4. Adding a CLI option to run type generation on existing DocTypes without having to update them.
+   
+<br/>
+
+
 ## Maintainers
 
 | Maintainer     | GitHub                                          | Social                                              |
