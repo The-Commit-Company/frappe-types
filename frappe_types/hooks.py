@@ -64,7 +64,12 @@ app_license = "MIT"
 # ------------
 
 # before_install = "frappe_types.install.before_install"
-# after_install = "frappe_types.install.after_install"
+after_install = "frappe_types.frappe_types.type_generator.after_migrate"
+
+# Migration
+
+before_migrate = "frappe_types.frappe_types.type_generator.before_migrate"
+after_migrate = "frappe_types.frappe_types.type_generator.after_migrate"
 
 # Uninstallation
 # ------------
@@ -102,10 +107,11 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
+
 doc_events = {
-	"DocType": {
-		"on_update": "frappe_types.frappe_types.type_generator.create_type_definition_file"
-	}
+    "DocType": {
+        "on_update": "frappe_types.frappe_types.type_generator.create_type_definition_file"
+    }
 }
 
 # Scheduled Tasks

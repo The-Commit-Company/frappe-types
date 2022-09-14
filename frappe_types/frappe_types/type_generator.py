@@ -1,10 +1,18 @@
 import frappe
 from pathlib import Path
 from .utils import create_file
+import subprocess
+
 
 def create_type_definition_file(doc, method=None):
     print("DocType created")
     print(doc)
+    common_site_config = frappe.get_conf()
+    frappe_types_pause_generation = common_site_config.get(
+        "frappe_types_pause_generation", 0)
+    if frappe_types_pause_generation:
+        print("Frappe Types is paused")
+        return
     doctype = frappe.get_doc("DocType", doc.name)
 
     if is_developer_mode_enabled() and is_valid_doctype(doctype):
@@ -14,7 +22,7 @@ def create_type_definition_file(doc, method=None):
         if module.app_name == "frappe" or module.app_name == "erpnext":
             print("Ignoring core app DocTypes")
             return
-            
+
         app_path: Path = Path("../apps") / module.app_name
 
         if not app_path.exists():
@@ -33,8 +41,7 @@ def create_type_definition_file(doc, method=None):
 
         generate_type_definition_file(doctype, module_path)
 
-    
-    
+
 def generate_type_definition_file(doctype, module_path):
 
     doctype_name = doctype.name.replace(" ", "")
@@ -44,10 +51,11 @@ def generate_type_definition_file(doctype, module_path):
     print("Type file content: " + str(type_file_content))
     create_file(type_file_path, type_file_content)
 
+
 def generate_type_definition_content(doctype):
     content = "export interface " + doctype.name.replace(" ", "") + "{\n"
 
-    #Boilerplate types for all documents
+    # Boilerplate types for all documents
     content += "\tcreation: string\n\tname: string\n\tmodified: string\n\towner: string\n\tmodified_by: string\n\tdocstatus: 0 | 1 | 2\n\tparent?: string\n\tparentfield?: string\n\tparenttype?: string\n\tidx?: number\n"
 
     for field in doctype.fields:
@@ -59,14 +67,19 @@ def generate_type_definition_content(doctype):
     content += "}"
     return content
 
+
 def get_field_comment(field):
     desc = field.description
     print(field.options)
     if field.fieldtype in ["Link", "Table", "Table MultiSelect"]:
-        desc = field.options + (" - " + field.description if field.description else "")
+        desc = field.options + \
+            (" - " + field.description if field.description else "")
     return "\t/**\t" + field.label + " : " + field.fieldtype + ((" - " + desc) if desc else "") + "\t*/\n"
+
+
 def get_field_type_definition(field):
     return field.fieldname + get_required(field) + ": " + get_field_type(field)
+
 
 def get_field_type(field):
 
@@ -101,10 +114,10 @@ def get_field_type(field):
         "Markdown Editor": "string",
     }
 
-    #TODO: Add support for Table and Table Multiselect - will need to add imports to file
+    # TODO: Add support for Table and Table Multiselect - will need to add imports to file
     if field.fieldtype in ["Table", "Table MultiSelect"]:
         return "any[]"
-    
+
     if field.fieldtype == "Select":
         options = field.options.split("\n")
         t = ""
@@ -113,11 +126,12 @@ def get_field_type(field):
         if t.endswith(" | "):
             t = t[:-3]
         return t
-    
+
     if field.fieldtype in basic_fieldtypes:
         return basic_fieldtypes[field.fieldtype]
     else:
         return "any"
+
 
 def get_required(field):
     if field.reqd:
@@ -125,19 +139,33 @@ def get_required(field):
     else:
         return "?"
 
+
 def is_valid_doctype(doctype):
-    if(doctype.custom):
+    if (doctype.custom):
         print("Custom DocType - ignoring type generation")
         return False
-    
-    if(doctype.is_virtual):
+
+    if (doctype.is_virtual):
         print("Virtual DocType - ignoring type generation")
         return False
-    
+
     return True
+
 
 def is_developer_mode_enabled():
     if not frappe.conf.get("developer_mode"):
         print("Developer mode not enabled - ignoring type generation")
         return False
     return True
+
+
+def before_migrate():
+    # print("Before migrate")
+    subprocess.run(
+        ["bench", "config", "set-common-config", "-c", "frappe_types_pause_generation", "1"])
+
+
+def after_migrate():
+    # print("After migrate")
+    subprocess.run(["bench", "config", "set-common-config",
+                   "-c", "frappe_types_pause_generation", "0"])
