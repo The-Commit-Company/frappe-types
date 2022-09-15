@@ -6,12 +6,20 @@ import subprocess
 
 def create_type_definition_file(doc, method=None):
 
+    # Fetch Type Generation Settings Document
+    type_generation_settings = frappe.get_doc(
+        'Type Generation Settings').as_dict().type_settings
+
+    # Check if type generation is paused
     common_site_config = frappe.get_conf()
+
     frappe_types_pause_generation = common_site_config.get(
         "frappe_types_pause_generation", 0)
+
     if frappe_types_pause_generation:
         print("Frappe Types is paused")
         return
+
     doctype = frappe.get_doc("DocType", doc.name)
 
     if is_developer_mode_enabled() and is_valid_doctype(doctype):
@@ -23,22 +31,25 @@ def create_type_definition_file(doc, method=None):
             return
 
         app_path: Path = Path("../apps") / module.app_name
-
         if not app_path.exists():
             print("App path does not exist - ignoring type generation")
             return
+        # Checking if app is existed in type generation settings
+        for type_setting in type_generation_settings:
+            if module.app_name == type_setting.app_name:
+                # Types folder is created in the app
+                type_path: Path = app_path / type_setting.app_path / "types"
 
-        # Checking types folder is created in the app
-        type_path: Path = app_path / "types"
+                if not type_path.exists():
+                    type_path.mkdir()
 
-        if not type_path.exists():
-            type_path.mkdir()
+                module_path: Path = type_path / module.name.replace(" ", "")
+                if not module_path.exists():
+                    module_path.mkdir()
 
-        module_path: Path = type_path / module.name.replace(" ", "")
-        if not module_path.exists():
-            module_path.mkdir()
-
-        generate_type_definition_file(doctype, module_path)
+                generate_type_definition_file(doctype, module_path)
+            else:
+                return
 
 
 def generate_type_definition_file(doctype, module_path):
