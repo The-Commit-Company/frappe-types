@@ -31,7 +31,7 @@
  "modified": "2022-09-15 12:43:46.781969",
  "modified_by": "Administrator",
  "module": "Frappe Types",
- "name": "App Settings",
+ "name": "App Type Generation Paths",
  "naming_rule": "Autoincrement",
  "owner": "Administrator",
  "permissions": [],
