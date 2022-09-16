@@ -63,7 +63,7 @@ app_license = "MIT"
 # Installation
 # ------------
 
-# before_install = "frappe_types.install.before_install"
+before_install = "frappe_types.frappe_types.type_generator.before_migrate"
 after_install = "frappe_types.frappe_types.type_generator.after_migrate"
 
 # Migration
