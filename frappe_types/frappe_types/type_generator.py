@@ -6,10 +6,6 @@ import subprocess
 
 def create_type_definition_file(doc, method=None):
 
-    # Fetch Type Generation Settings Document
-    type_generation_settings = frappe.get_doc(
-        'Type Generation Settings').as_dict().type_settings
-
     # Check if type generation is paused
     common_site_config = frappe.get_conf()
 
@@ -34,6 +30,11 @@ def create_type_definition_file(doc, method=None):
         if not app_path.exists():
             print("App path does not exist - ignoring type generation")
             return
+
+        # Fetch Type Generation Settings Document
+        type_generation_settings = frappe.get_doc(
+            'Type Generation Settings').as_dict().type_settings
+
         # Checking if app is existed in type generation settings
         for type_setting in type_generation_settings:
             if module.app_name == type_setting.app_name:
