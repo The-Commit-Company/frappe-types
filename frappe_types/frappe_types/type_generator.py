@@ -62,6 +62,8 @@ def generate_type_definition_file(doctype, module_path):
 
 
 def generate_type_definition_content(doctype):
+    generate_type_definition_content.imports = ""
+    # print(generate_type_definition_content.imports)
     content = "export interface " + doctype.name.replace(" ", "") + "{\n"
 
     # Boilerplate types for all documents
@@ -71,10 +73,11 @@ def generate_type_definition_content(doctype):
         if field.fieldtype in ["Section Break", "Column Break", "HTML", "Button", "Fold", "Heading", "Tab Break", "Break"]:
             continue
         content += get_field_comment(field)
-        content += "\t" + get_field_type_definition(field) + "\n"
+        content += "\t" + get_field_type_definition(field, doctype) + "\n"
 
     content += "}"
-    return content
+    # print(generate_type_definition_content.imports)
+    return generate_type_definition_content.imports + "\n" + content
 
 
 def get_field_comment(field):
@@ -86,11 +89,11 @@ def get_field_comment(field):
     return "\t/**\t" + field.label + " : " + field.fieldtype + ((" - " + desc) if desc else "") + "\t*/\n"
 
 
-def get_field_type_definition(field):
-    return field.fieldname + get_required(field) + ": " + get_field_type(field)
+def get_field_type_definition(field, doctype):
+    return field.fieldname + get_required(field) + ": " + get_field_type(field, doctype)
 
 
-def get_field_type(field):
+def get_field_type(field, doctype):
 
     basic_fieldtypes = {
         "Data": "string",
@@ -125,7 +128,8 @@ def get_field_type(field):
 
     # TODO: Add support for Table and Table Multiselect - will need to add imports to file
     if field.fieldtype in ["Table", "Table MultiSelect"]:
-        return "any[]"
+        # print(get_imports_for_table_fields(field, doctype))
+        return get_imports_for_table_fields(field, doctype)
 
     if field.fieldtype == "Select":
         options = field.options.split("\n")
@@ -140,6 +144,25 @@ def get_field_type(field):
         return basic_fieldtypes[field.fieldtype]
     else:
         return "any"
+
+
+def get_imports_for_table_fields(field, doctype):
+    if field.fieldtype == "Table" or field.fieldtype == "Table MultiSelect":
+        doctype_module = frappe.get_doc('Module Def', doctype.module)
+        table_doc = frappe.get_doc('DocType', field.options)
+        table_module = frappe.get_doc('Module Def', table_doc.module)
+        if doctype_module.name == table_module.name:
+            generate_type_definition_content.imports += ("import { " + field.options.replace(" ", "") + " } from './" +
+                                                         field.options.replace(" ", "") + "'") + "\n"
+
+            # print(generate_type_definition_content.imports)
+        else:
+            generate_type_definition_content.imports += ("import { " + field.options.replace(" ", "") + " } from '../" +
+                                                         table_module.name.replace(" ", "") + "/" + field.options.replace(" ", "") + "'") + "\n"
+            # print(generate_type_definition_content.imports)
+
+        return field.options.replace(" ", "")
+    return ""
 
 
 def get_required(field):
