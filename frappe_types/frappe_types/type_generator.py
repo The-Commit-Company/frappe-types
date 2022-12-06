@@ -126,7 +126,6 @@ def get_field_type(field, doctype):
         "Markdown Editor": "string",
     }
 
-    # TODO: Add support for Table and Table Multiselect - will need to add imports to file
     if field.fieldtype in ["Table", "Table MultiSelect"]:
         # print(get_imports_for_table_fields(field, doctype))
         return get_imports_for_table_fields(field, doctype)
@@ -161,7 +160,7 @@ def get_imports_for_table_fields(field, doctype):
                                                          table_module.name.replace(" ", "") + "/" + field.options.replace(" ", "") + "'") + "\n"
             # print(generate_type_definition_content.imports)
 
-        return field.options.replace(" ", "")
+        return field.options.replace(" ", "") + "[]"
     return ""
 
 
