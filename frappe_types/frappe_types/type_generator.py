@@ -16,7 +16,7 @@ def create_type_definition_file(doc, method=None):
         print("Frappe Types is paused")
         return
 
-    doctype = frappe.get_doc("DocType", doc.name)
+    doctype = doc
 
     if is_developer_mode_enabled() and is_valid_doctype(doctype):
         print("Generating type definition file for " + doctype.name)
