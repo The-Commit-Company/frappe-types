@@ -149,17 +149,18 @@ def get_field_type(field, doctype):
 
 def get_imports_for_table_fields(field, doctype):
     if field.fieldtype == "Table" or field.fieldtype == "Table MultiSelect":
-        doctype_module = frappe.get_doc('Module Def', doctype.module)
+        doctype_module_name = doctype.module
         table_doc = frappe.get_doc('DocType', field.options)
-        table_module = frappe.get_doc('Module Def', table_doc.module)
-        if doctype_module.name == table_module.name:
+        table_module_name = table_doc.module
+
+        if doctype_module_name == table_module_name:
             generate_type_definition_content.imports += ("import { " + field.options.replace(" ", "") + " } from './" +
                                                          field.options.replace(" ", "") + "'") + "\n"
 
             # print(generate_type_definition_content.imports)
         else:
             generate_type_definition_content.imports += ("import { " + field.options.replace(" ", "") + " } from '../" +
-                                                         table_module.name.replace(" ", "") + "/" + field.options.replace(" ", "") + "'") + "\n"
+                                                         table_module_name.replace(" ", "") + "/" + field.options.replace(" ", "") + "'") + "\n"
             # print(generate_type_definition_content.imports)
 
         return field.options.replace(" ", "") + "[]"
