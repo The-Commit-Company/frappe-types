@@ -84,7 +84,6 @@ def generate_type_definition_content(doctype):
 
 def get_field_comment(field):
     desc = field.description
-    print(field.options)
     if field.fieldtype in ["Link", "Table", "Table MultiSelect"]:
         desc = field.options + \
             (" - " + field.description if field.description else "")
