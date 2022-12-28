@@ -20,31 +20,33 @@ def create_type_definition_file(doc, method=None):
 
     if is_developer_mode_enabled() and is_valid_doctype(doctype):
         print("Generating type definition file for " + doctype.name)
-        module = frappe.get_doc('Module Def', doctype.module)
-
-        if module.app_name == "frappe" or module.app_name == "erpnext":
+        module_name = doctype.module
+        app_name = frappe.db.get_value('Module Def', module_name, 'app_name')
+        
+        if app_name == "frappe" or app_name == "erpnext":
             print("Ignoring core app DocTypes")
             return
 
-        app_path: Path = Path("../apps") / module.app_name
+        app_path: Path = Path("../apps") / app_name
         if not app_path.exists():
             print("App path does not exist - ignoring type generation")
             return
 
         # Fetch Type Generation Settings Document
         type_generation_settings = frappe.get_doc(
-            'Type Generation Settings').as_dict().type_settings
+            'Type Generation Settings'
+        ).as_dict().type_settings
 
         # Checking if app is existed in type generation settings
         for type_setting in type_generation_settings:
-            if module.app_name == type_setting.app_name:
+            if app_name == type_setting.app_name:
                 # Types folder is created in the app
                 type_path: Path = app_path / type_setting.app_path / "types"
 
                 if not type_path.exists():
                     type_path.mkdir()
 
-                module_path: Path = type_path / module.name.replace(" ", "")
+                module_path: Path = type_path / module_name.replace(" ", "")
                 if not module_path.exists():
                     module_path.mkdir()
 
