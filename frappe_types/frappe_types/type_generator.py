@@ -16,35 +16,37 @@ def create_type_definition_file(doc, method=None):
         print("Frappe Types is paused")
         return
 
-    doctype = frappe.get_doc("DocType", doc.name)
+    doctype = doc
 
     if is_developer_mode_enabled() and is_valid_doctype(doctype):
         print("Generating type definition file for " + doctype.name)
-        module = frappe.get_doc('Module Def', doctype.module)
-
-        if module.app_name == "frappe" or module.app_name == "erpnext":
+        module_name = doctype.module
+        app_name = frappe.db.get_value('Module Def', module_name, 'app_name')
+        
+        if app_name == "frappe" or app_name == "erpnext":
             print("Ignoring core app DocTypes")
             return
 
-        app_path: Path = Path("../apps") / module.app_name
+        app_path: Path = Path("../apps") / app_name
         if not app_path.exists():
             print("App path does not exist - ignoring type generation")
             return
 
         # Fetch Type Generation Settings Document
         type_generation_settings = frappe.get_doc(
-            'Type Generation Settings').as_dict().type_settings
+            'Type Generation Settings'
+        ).as_dict().type_settings
 
         # Checking if app is existed in type generation settings
         for type_setting in type_generation_settings:
-            if module.app_name == type_setting.app_name:
+            if app_name == type_setting.app_name:
                 # Types folder is created in the app
                 type_path: Path = app_path / type_setting.app_path / "types"
 
                 if not type_path.exists():
                     type_path.mkdir()
 
-                module_path: Path = type_path / module.name.replace(" ", "")
+                module_path: Path = type_path / module_name.replace(" ", "")
                 if not module_path.exists():
                     module_path.mkdir()
 
@@ -82,7 +84,6 @@ def generate_type_definition_content(doctype):
 
 def get_field_comment(field):
     desc = field.description
-    print(field.options)
     if field.fieldtype in ["Link", "Table", "Table MultiSelect"]:
         desc = field.options + \
             (" - " + field.description if field.description else "")
@@ -147,17 +148,18 @@ def get_field_type(field, doctype):
 
 def get_imports_for_table_fields(field, doctype):
     if field.fieldtype == "Table" or field.fieldtype == "Table MultiSelect":
-        doctype_module = frappe.get_doc('Module Def', doctype.module)
+        doctype_module_name = doctype.module
         table_doc = frappe.get_doc('DocType', field.options)
-        table_module = frappe.get_doc('Module Def', table_doc.module)
-        if doctype_module.name == table_module.name:
+        table_module_name = table_doc.module
+
+        if doctype_module_name == table_module_name:
             generate_type_definition_content.imports += ("import { " + field.options.replace(" ", "") + " } from './" +
                                                          field.options.replace(" ", "") + "'") + "\n"
 
             # print(generate_type_definition_content.imports)
         else:
             generate_type_definition_content.imports += ("import { " + field.options.replace(" ", "") + " } from '../" +
-                                                         table_module.name.replace(" ", "") + "/" + field.options.replace(" ", "") + "'") + "\n"
+                                                         table_module_name.replace(" ", "") + "/" + field.options.replace(" ", "") + "'") + "\n"
             # print(generate_type_definition_content.imports)
 
         return field.options.replace(" ", "") + "[]"
