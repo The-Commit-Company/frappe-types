@@ -17,6 +17,9 @@ To use the app, install it on your local development bench:
 ```bash
 $ bench get-app https://github.com/nikkothari22/frappe-types
 ```
+After Installing the app go search for Type Generation Settings doctype(single doctype) where you can add app name and path where ypu want to save your .ts files, frappe-types will only run on those app whose app name and path are added to this doctype.
+
+<img width="1372" alt="Screenshot 2023-01-12 at 2 30 31 PM" src="https://user-images.githubusercontent.com/59503001/212024507-3197ecfb-e243-4695-a96c-b86d0c1113b4.png">
 
 That's it. 
 
@@ -61,10 +64,8 @@ If you are developing custom Frappe apps with a Frappe backend and a frontend si
 
 ## What features will we add next?
 
-1. Support for Table fields. Currently defaults to any[]
-2. Ability to define path for types folder and select apps for which types are to be generated
-3. Looking at how to improve speed so that DocType saving does not take a lot of time.
-4. Adding a CLI option to run type generation on existing DocTypes without having to update them.
+1. Looking at how to improve speed so that DocType saving does not take a lot of time.
+2. Adding a CLI option to run type generation on existing DocTypes without having to update them.
    
 <br/>
 
@@ -74,6 +75,7 @@ If you are developing custom Frappe apps with a Frappe backend and a frontend si
 | Maintainer     | GitHub                                          | Social                                              |
 | -------------- | ----------------------------------------------- | --------------------------------------------------- |
 | Nikhil Kothari | [nikkothari22](https://github.com/nikkothari22) | [@nik_kothari22](https://twitter.com/nik_kothari22) |
+| Sumit Jain     | [sumitjain236](https://github.com/sumitjain236) |                                                     |
 
 <br/>
 
