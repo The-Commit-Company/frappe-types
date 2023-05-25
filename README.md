@@ -38,20 +38,23 @@ Now whenever you create or update any DocType on your local machine, the app wil
 
 ## Example
 
-Let's say you create a DocType in a module called "Project Management" called "Project" with the following fields:
+Let's say you create a DocType in a module called "Project Management" called "Projects" and Child Table called "Project User Table" with the following fields:
 <br/>
 
-<img width="1058" alt="image" src="https://user-images.githubusercontent.com/19825455/189567982-87e3b28f-3627-4a96-87cc-eddee164f4c2.png">
+<img width="1047" alt="image" src="https://github.com/The-Commit-Company/frappe-types/assets/59503001/60718378-c1e7-4b65-86eb-5e320ab3a5ca">
 
 <br/>
 
-The app will automatically create a file called `Project.ts` at the path `<your_app_folder>/types/ProjectManagement/Project` like this:
+The app will automatically create a file called `Projects.ts` and `ProjectUserTable.ts` at the path `<your_app_folder>/types/ProjectManagement` like this:
 
 (Notice that spaces in the Module and DocType names will be removed)
 
 <br/>
 
-<img width="1337" alt="image" src="https://user-images.githubusercontent.com/19825455/189568132-ecc79a9e-832a-4558-8102-2a9d919e5fed.png">
+<img width="1239" alt="image" src="https://github.com/The-Commit-Company/frappe-types/assets/59503001/c67b6f11-66b3-4c72-8217-bb1afab95c02">
+
+<br/>
+<img width="1242" alt="image" src="https://github.com/The-Commit-Company/frappe-types/assets/59503001/1c40ccd4-66a1-4b12-be5d-1f8c3798b60e">
 
 
 <br/>
