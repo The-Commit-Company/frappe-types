@@ -55,15 +55,16 @@ def create_type_definition_file(doc, method=None):
                 return
 
 
-def generate_type_definition_file(doctype, module_path):
+def generate_type_definition_file(doctype, module_path, generate_child_tables=False):
 
     doctype_name = doctype.name.replace(" ", "")
     type_file_path = module_path / (doctype_name + ".ts")
-    type_file_content = generate_type_definition_content(doctype, module_path)
+    type_file_content = generate_type_definition_content(
+        doctype, module_path, generate_child_tables)
     create_file(type_file_path, type_file_content)
 
 
-def generate_type_definition_content(doctype, module_path):
+def generate_type_definition_content(doctype, module_path, generate_child_tables):
     generate_type_definition_content.imports = ""
     # print(generate_type_definition_content.imports)
     content = "export interface " + doctype.name.replace(" ", "") + "{\n"
@@ -76,7 +77,8 @@ def generate_type_definition_content(doctype, module_path):
             continue
         content += get_field_comment(field)
         content += "\t" + \
-            get_field_type_definition(field, doctype, module_path) + "\n"
+            get_field_type_definition(
+                field, doctype, module_path, generate_child_tables) + "\n"
 
     content += "}"
     # print(generate_type_definition_content.imports)
@@ -91,11 +93,11 @@ def get_field_comment(field):
     return "\t/**\t" + field.label + " : " + field.fieldtype + ((" - " + desc) if desc else "") + "\t*/\n"
 
 
-def get_field_type_definition(field, doctype, module_path):
-    return field.fieldname + get_required(field) + ": " + get_field_type(field, doctype, module_path)
+def get_field_type_definition(field, doctype, module_path, generate_child_tables):
+    return field.fieldname + get_required(field) + ": " + get_field_type(field, doctype, module_path, generate_child_tables)
 
 
-def get_field_type(field, doctype, module_path):
+def get_field_type(field, doctype, module_path, generate_child_tables):
 
     basic_fieldtypes = {
         "Data": "string",
@@ -130,7 +132,7 @@ def get_field_type(field, doctype, module_path):
 
     if field.fieldtype in ["Table", "Table MultiSelect"]:
         # print(get_imports_for_table_fields(field, doctype))
-        return get_imports_for_table_fields(field, doctype, module_path)
+        return get_imports_for_table_fields(field, doctype, module_path, generate_child_tables)
 
     if field.fieldtype == "Select":
         if (field.options):
@@ -150,11 +152,12 @@ def get_field_type(field, doctype, module_path):
         return "any"
 
 
-def get_imports_for_table_fields(field, doctype, module_path):
+def get_imports_for_table_fields(field, doctype, module_path, generate_child_tables):
     if field.fieldtype == "Table" or field.fieldtype == "Table MultiSelect":
         doctype_module_name = doctype.module
         table_doc = frappe.get_doc('DocType', field.options)
         table_module_name = table_doc.module
+        should_import = False
 
         # check if table doctype type file is already generated and exists
 
@@ -163,15 +166,23 @@ def get_imports_for_table_fields(field, doctype, module_path):
             table_file_path: Path = module_path / \
                 (table_doc.name.replace(" ", "") + ".ts")
             if not table_file_path.exists():
-                generate_type_definition_file(table_doc, module_path)
+                if generate_child_tables:
+                    generate_type_definition_file(table_doc, module_path)
+
+                    should_import = True
+
+            else:
+                should_import = True
 
             generate_type_definition_content.imports += ("import { " + field.options.replace(" ", "") + " } from './" +
-                                                         field.options.replace(" ", "") + "'") + "\n"
+                                                         field.options.replace(" ", "") + "'") + "\n" if should_import else ''
 
-            # print(generate_type_definition_content.imports)
         else:
-            table_module_path: Path = module_path.split(
-                "/").pop().join("/") / table_module_name.replace(" ", "")
+            # table_module_path: Path = module_path.split(
+            #     "/").pop().join("/") / table_module_name.replace(" ", "")
+
+            table_module_path: Path = module_path.parent / \
+                table_module_name.replace(" ", "")
             if not table_module_path.exists():
                 table_module_path.mkdir()
 
@@ -179,13 +190,18 @@ def get_imports_for_table_fields(field, doctype, module_path):
                 (table_doc.name.replace(" ", "") + ".ts")
 
             if not table_file_path.exists():
-                generate_type_definition_file(table_doc, table_module_path)
+                if generate_child_tables:
+                    generate_type_definition_file(table_doc, table_module_path)
+
+                    should_import = True
+
+            else:
+                should_import = True
 
             generate_type_definition_content.imports += ("import { " + field.options.replace(" ", "") + " } from '../" +
-                                                         table_module_name.replace(" ", "") + "/" + field.options.replace(" ", "") + "'") + "\n"
-            # print(generate_type_definition_content.imports)
+                                                         table_module_name.replace(" ", "") + "/" + field.options.replace(" ", "") + "'") + "\n" if should_import else ''
 
-        return field.options.replace(" ", "") + "[]"
+        return field.options.replace(" ", "") + "[]" if should_import else 'any'
     return ""
 
 
@@ -261,9 +277,8 @@ def generate_types_for_doctype(doctype, app_name, generate_child_tables=False):
         for type_setting in type_generation_settings:
             if app_name == type_setting.app_name:
                 # Types folder is created in the app
-                path = type_setting.external_app_path if type_setting.external_app_path else type_setting.app_path
-                type_path: Path = app_path / path / "types"
-
+                path: Path = type_setting.external_app_path if type_setting.external_app_path else type_setting.app_path / "types"
+                type_path: Path = app_path / path
                 if not type_path.exists():
                     type_path.mkdir()
 
@@ -280,7 +295,29 @@ def generate_types_for_doctype(doctype, app_name, generate_child_tables=False):
 def trial():
     # TODO: Remove this function and use generate_child_tables parameter in generate_types_for_doctype
     doctype = 'User'
+    module = 'Asset Register'
     app_name = 'my_asset_buddy'
     generate_child_tables = True
-    generate_types_for_doctype(doctype, app_name, generate_child_tables)
+    # generate_types_for_doctype(doctype, app_name, generate_child_tables)
+    generate_types_for_module(module, app_name, generate_child_tables)
+    return "Done"
+
+
+@frappe.whitelist()
+def generate_types_for_module(module, app_name, generate_child_tables=False):
+    child_tables = [doctype['name'] for doctype in frappe.get_list(
+        'DocType', filters={'module': module, 'istable': 1})]
+    if len(child_tables) > 0:
+        for child_table in child_tables:
+            generate_types_for_doctype(
+                child_table, app_name, generate_child_tables)
+
+    doctypes = [doctype['name'] for doctype in frappe.get_list(
+        'DocType', filters={'module': module, 'istable': 0})]
+
+    if len(doctypes) > 0:
+        for doctype in doctypes:
+            generate_types_for_doctype(
+                doctype, app_name, generate_child_tables)
+
     return "Done"
