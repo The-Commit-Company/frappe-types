@@ -7,8 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "app_name",
-  "app_path",
-  "external_app_path"
+  "app_path"
  ],
  "fields": [
   {
@@ -24,18 +23,12 @@
    "in_list_view": 1,
    "label": "App Path",
    "reqd": 1
-  },
-  {
-   "description": "This is path where external app's doctype's type file get saved.\nif empty then path will be  App Path",
-   "fieldname": "external_app_path",
-   "fieldtype": "Data",
-   "label": "External App Path"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-06-09 13:55:00.726501",
+ "modified": "2023-06-19 11:58:35.450734",
  "modified_by": "Administrator",
  "module": "Frappe Types",
  "name": "App Type Generation Paths",
