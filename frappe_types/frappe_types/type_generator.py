@@ -244,80 +244,78 @@ def after_migrate():
 
 
 @frappe.whitelist()
-def generate_types_for_doctype(doctype, app_name, generate_child_tables=False):
-    doc = frappe.get_meta(doctype)
+def generate_types_for_doctype(doctype, app_name, generate_child_tables=False, custom_fields=False):
 
-    # Check if type generation is paused
-    common_site_config = frappe.get_conf()
+    try:
+        # custom_fields True means that the generate .ts file for custom fields with original fields
+        doc = frappe.get_meta(doctype) if custom_fields else frappe.get_doc(
+            'DocType', doctype)
 
-    frappe_types_pause_generation = common_site_config.get(
-        "frappe_types_pause_generation", 0)
+        # Check if type generation is paused
+        common_site_config = frappe.get_conf()
 
-    if frappe_types_pause_generation:
-        print("Frappe Types is paused")
-        return
+        frappe_types_pause_generation = common_site_config.get(
+            "frappe_types_pause_generation", 0)
 
-    doctype = doc
-
-    if is_developer_mode_enabled() and is_valid_doctype(doctype):
-        print("Generating type definition file for " + doctype.name)
-        module_name = doctype.module
-
-        app_path: Path = Path("../apps") / app_name
-        if not app_path.exists():
-            print("App path does not exist - ignoring type generation")
+        if frappe_types_pause_generation:
+            print("Frappe Types is paused")
             return
 
-        # Fetch Type Generation Settings Document
-        type_generation_settings = frappe.get_doc(
-            'Type Generation Settings'
-        ).as_dict().type_settings
+        if is_developer_mode_enabled() and is_valid_doctype(doc):
+            print("Generating type definition file for " + doc.name)
+            module_name = doc.module
 
-        # Checking if app is existed in type generation settings
-        for type_setting in type_generation_settings:
-            if app_name == type_setting.app_name:
-                # Types folder is created in the app
-                path: Path = type_setting.external_app_path if type_setting.external_app_path else type_setting.app_path / "types"
-                type_path: Path = app_path / path
-                if not type_path.exists():
-                    type_path.mkdir()
-
-                module_path: Path = type_path / module_name.replace(" ", "")
-                if not module_path.exists():
-                    module_path.mkdir()
-
-                generate_type_definition_file(doctype, module_path)
-            else:
+            app_path: Path = Path("../apps") / app_name
+            if not app_path.exists():
+                print("App path does not exist - ignoring type generation")
                 return
 
+            # Fetch Type Generation Settings Document
+            type_generation_settings = frappe.get_doc(
+                'Type Generation Settings'
+            ).as_dict().type_settings
 
-@frappe.whitelist()
-def trial():
-    # TODO: Remove this function and use generate_child_tables parameter in generate_types_for_doctype
-    doctype = 'User'
-    module = 'Asset Register'
-    app_name = 'my_asset_buddy'
-    generate_child_tables = True
-    # generate_types_for_doctype(doctype, app_name, generate_child_tables)
-    generate_types_for_module(module, app_name, generate_child_tables)
-    return "Done"
+            # Checking if app is existed in type generation settings
+            for type_setting in type_generation_settings:
+                if app_name == type_setting.app_name:
+                    # Types folder is created in the app
+                    # path: Path = type_setting.app_path / "types"
+                    type_path: Path = app_path / type_setting.app_path / "types"
+                    if not type_path.exists():
+                        type_path.mkdir()
+
+                    module_path: Path = type_path / \
+                        module_name.replace(" ", "")
+                    if not module_path.exists():
+                        module_path.mkdir()
+
+                    generate_type_definition_file(doc, module_path)
+                else:
+                    return
+    except Exception as e:
+        err_msg = f": {str(e)}\n{frappe.get_traceback()}"
+        print(
+            f"An error occurred while generating type for {doctype} {err_msg}")
 
 
 @frappe.whitelist()
 def generate_types_for_module(module, app_name, generate_child_tables=False):
-    child_tables = [doctype['name'] for doctype in frappe.get_list(
-        'DocType', filters={'module': module, 'istable': 1})]
-    if len(child_tables) > 0:
-        for child_table in child_tables:
-            generate_types_for_doctype(
-                child_table, app_name, generate_child_tables)
+    try:
+        child_tables = [doctype['name'] for doctype in frappe.get_list(
+            'DocType', filters={'module': module, 'istable': 1})]
+        if len(child_tables) > 0:
+            for child_table in child_tables:
+                generate_types_for_doctype(
+                    child_table, app_name, generate_child_tables)
 
-    doctypes = [doctype['name'] for doctype in frappe.get_list(
-        'DocType', filters={'module': module, 'istable': 0})]
+        doctypes = [doctype['name'] for doctype in frappe.get_list(
+            'DocType', filters={'module': module, 'istable': 0})]
 
-    if len(doctypes) > 0:
-        for doctype in doctypes:
-            generate_types_for_doctype(
-                doctype, app_name, generate_child_tables)
-
-    return "Done"
+        if len(doctypes) > 0:
+            for doctype in doctypes:
+                generate_types_for_doctype(
+                    doctype, app_name, generate_child_tables)
+    except Exception as e:
+        err_msg = f": {str(e)}\n{frappe.get_traceback()}"
+        print(
+            f"An error occurred while generating type for {module} {err_msg}")
