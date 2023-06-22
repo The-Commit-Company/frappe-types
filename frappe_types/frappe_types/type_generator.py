@@ -50,7 +50,8 @@ def create_type_definition_file(doc, method=None):
                 if not module_path.exists():
                     module_path.mkdir()
 
-                generate_type_definition_file(doctype, module_path)
+                generate_type_definition_file(
+                    doctype, module_path, generate_child_tables)
             else:
                 return
 
@@ -90,7 +91,7 @@ def get_field_comment(field):
     if field.fieldtype in ["Link", "Table", "Table MultiSelect"]:
         desc = field.options + \
             (" - " + field.description if field.description else "")
-    return "\t/**\t" + field.label + " : " + field.fieldtype + ((" - " + desc) if desc else "") + "\t*/\n"
+    return "\t/**\t" + (field.label if field.label else '') + " : " + field.fieldtype + ((" - " + desc) if desc else "") + "\t*/\n"
 
 
 def get_field_type_definition(field, doctype, module_path, generate_child_tables):
@@ -289,7 +290,8 @@ def generate_types_for_doctype(doctype, app_name, generate_child_tables=False, c
                     if not module_path.exists():
                         module_path.mkdir()
 
-                    generate_type_definition_file(doc, module_path)
+                    generate_type_definition_file(
+                        doc, module_path, generate_child_tables)
                 else:
                     return
     except Exception as e:
