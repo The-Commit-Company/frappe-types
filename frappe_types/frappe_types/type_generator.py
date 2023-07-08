@@ -51,7 +51,7 @@ def create_type_definition_file(doc, method=None):
                     module_path.mkdir()
 
                 generate_type_definition_file(
-                    doctype, module_path, generate_child_tables)
+                    doctype, module_path, generate_child_tables=True)
             else:
                 return
 

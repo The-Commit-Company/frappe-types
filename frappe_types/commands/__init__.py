@@ -1,7 +1,10 @@
 import click
-from frappe_types.frappe_types.type_generator import generate_types_for_doctype, generate_types_for_module
-from frappe.commands import pass_context
+
 import frappe
+from frappe.commands import pass_context
+from frappe.exceptions import SiteNotSpecifiedError
+
+from frappe_types.frappe_types.type_generator import generate_types_for_doctype, generate_types_for_module
 
 
 @click.command("generate-types-for-doctype")
