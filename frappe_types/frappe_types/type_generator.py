@@ -62,6 +62,7 @@ def generate_type_definition_file(doctype, module_path, generate_child_tables=Fa
     type_file_path = module_path / (doctype_name + ".ts")
     type_file_content = generate_type_definition_content(
         doctype, module_path, generate_child_tables)
+
     create_file(type_file_path, type_file_content)
 
 
@@ -82,6 +83,7 @@ def generate_type_definition_content(doctype, module_path, generate_child_tables
                 field, doctype, module_path, generate_child_tables) + "\n"
 
     content += "}"
+
     # print(generate_type_definition_content.imports)
     return generate_type_definition_content.imports + "\n" + content
 
@@ -292,8 +294,7 @@ def generate_types_for_doctype(doctype, app_name, generate_child_tables=False, c
 
                     generate_type_definition_file(
                         doc, module_path, generate_child_tables)
-                else:
-                    return
+               
     except Exception as e:
         err_msg = f": {str(e)}\n{frappe.get_traceback()}"
         print(
