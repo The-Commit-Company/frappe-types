@@ -67,8 +67,8 @@ def generate_type_definition_file(doctype, module_path, generate_child_tables=Fa
 
 
 def generate_type_definition_content(doctype, module_path, generate_child_tables):
-    generate_type_definition_content.imports = ""
-    # print(generate_type_definition_content.imports)
+    import_statement = ""
+
     content = "export interface " + doctype.name.replace(" ", "") + "{\n"
 
     # Boilerplate types for all documents
@@ -78,14 +78,18 @@ def generate_type_definition_content(doctype, module_path, generate_child_tables
         if field.fieldtype in ["Section Break", "Column Break", "HTML", "Button", "Fold", "Heading", "Tab Break", "Break"]:
             continue
         content += get_field_comment(field)
-        content += "\t" + \
-            get_field_type_definition(
-                field, doctype, module_path, generate_child_tables) + "\n"
+
+        file_defination, statement = get_field_type_definition(
+            field, doctype, module_path, generate_child_tables)
+
+        if statement:
+            import_statement += statement
+        
+        content += "\t" + file_defination + "\n"
 
     content += "}"
 
-    # print(generate_type_definition_content.imports)
-    return generate_type_definition_content.imports + "\n" + content
+    return import_statement + "\n" + content if import_statement else content
 
 
 def get_field_comment(field):
@@ -97,7 +101,8 @@ def get_field_comment(field):
 
 
 def get_field_type_definition(field, doctype, module_path, generate_child_tables):
-    return field.fieldname + get_required(field) + ": " + get_field_type(field, doctype, module_path, generate_child_tables)
+    field_type,import_statement =  get_field_type(field, doctype, module_path, generate_child_tables)
+    return field.fieldname + get_required(field) + ": " + field_type , import_statement
 
 
 def get_field_type(field, doctype, module_path, generate_child_tables):
@@ -134,7 +139,7 @@ def get_field_type(field, doctype, module_path, generate_child_tables):
     }
 
     if field.fieldtype in ["Table", "Table MultiSelect"]:
-        # print(get_imports_for_table_fields(field, doctype))
+
         return get_imports_for_table_fields(field, doctype, module_path, generate_child_tables)
 
     if field.fieldtype == "Select":
@@ -145,14 +150,14 @@ def get_field_type(field, doctype, module_path, generate_child_tables):
                 t += "\"" + option + "\" | "
             if t.endswith(" | "):
                 t = t[:-3]
-            return t
+            return t, None
         else:
-            return 'string'
+            return 'string',None
 
     if field.fieldtype in basic_fieldtypes:
-        return basic_fieldtypes[field.fieldtype]
+        return basic_fieldtypes[field.fieldtype], None
     else:
-        return "any"
+        return "any", None
 
 
 def get_imports_for_table_fields(field, doctype, module_path, generate_child_tables):
@@ -161,6 +166,7 @@ def get_imports_for_table_fields(field, doctype, module_path, generate_child_tab
         table_doc = frappe.get_doc('DocType', field.options)
         table_module_name = table_doc.module
         should_import = False
+        import_statement = ""
 
         # check if table doctype type file is already generated and exists
 
@@ -176,13 +182,11 @@ def get_imports_for_table_fields(field, doctype, module_path, generate_child_tab
 
             else:
                 should_import = True
-
-            generate_type_definition_content.imports += ("import { " + field.options.replace(" ", "") + " } from './" +
-                                                         field.options.replace(" ", "") + "'") + "\n" if should_import else ''
+            
+            import_statement = ("import { " + field.options.replace(" ", "") + " } from './" +
+                                    field.options.replace(" ", "") + "'") + "\n" if should_import else ''
 
         else:
-            # table_module_path: Path = module_path.split(
-            #     "/").pop().join("/") / table_module_name.replace(" ", "")
 
             table_module_path: Path = module_path.parent / \
                 table_module_name.replace(" ", "")
@@ -201,11 +205,11 @@ def get_imports_for_table_fields(field, doctype, module_path, generate_child_tab
             else:
                 should_import = True
 
-            generate_type_definition_content.imports += ("import { " + field.options.replace(" ", "") + " } from '../" +
-                                                         table_module_name.replace(" ", "") + "/" + field.options.replace(" ", "") + "'") + "\n" if should_import else ''
+            import_statement = ("import { " + field.options.replace(" ", "") + " } from '../" +
+                                    table_module_name.replace(" ", "") + "/" + field.options.replace(" ", "") + "'") + "\n" if should_import else ''
 
-        return field.options.replace(" ", "") + "[]" if should_import else 'any'
-    return ""
+        return field.options.replace(" ", "") + "[]" if should_import else 'any', import_statement
+    return "",None
 
 
 def get_required(field):
