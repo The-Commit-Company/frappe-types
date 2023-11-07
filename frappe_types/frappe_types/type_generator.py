@@ -89,8 +89,7 @@ def generate_type_definition_content(doctype, module_path, generate_child_tables
 
     content += "}"
 
-    return import_statement + "\n" + content if import_statement else content
-
+    return import_statement + "\n" + content
 
 def get_field_comment(field):
     desc = field.description
