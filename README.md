@@ -15,7 +15,7 @@ Typescript type definition generator for Frappe DocTypes.
 To use the app, install it on your local development bench:
 
 ```bash
-$ bench get-app https://github.com/nikkothari22/frappe-types
+$ bench get-app https://github.com/The-Commit-Company/frappe-types
 $ bench --site mysite.test install-app frappe_types
 ```
 
