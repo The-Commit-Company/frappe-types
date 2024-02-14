@@ -46,10 +46,10 @@ This CLI Command works for all frappe-bench apps, and can generate types of any 
 1.  Generate types for DocType.
 
 ```bash
- $ bench generate-types-for-doctype --app <app_name> --doctype <doctype_name> [--generate_child_tables] [--custom_fields]
+ $ bench  --site <site_name> generate-types-for-doctype --app <app_name> --doctype <doctype_name> [--generate_child_tables] [--custom_fields]
 
 #  or just Answer the prompts
- $ bench generate-types-for-doctype
+ $ bench  --site <site_name> generate-types-for-doctype
 ```
 
 2.  Generate types for Module.
@@ -61,7 +61,7 @@ This CLI Command works for all frappe-bench apps, and can generate types of any 
   $ bench --site <site_name> generate-types-for-module
 ```
 
-Note:
+Note: No need to mention --site <site_name> if current site is same site where module/doctype existed app installed in that site.
 
 1. `--app` - the app name included in `Type Generation Settings` doctype and where you want to save type files.
 2. `--doctype` - the doctype name for which you want to generate types.
