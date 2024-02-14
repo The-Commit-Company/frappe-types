@@ -55,10 +55,10 @@ This CLI Command works for all frappe-bench apps, and can generate types of any 
 2.  Generate types for Module.
 
 ```bash
- $ bench generate-types-for-module --app <app_name> --module <module_name> [--generate_child_tables]
+ $ bench --site <site_name> generate-types-for-module --app <app_name> --module <module_name> [--generate_child_tables]
 
 #  or just Answer the prompts
-  $ bench generate-types-for-module
+  $ bench --site <site_name> generate-types-for-module
 ```
 
 Note:
