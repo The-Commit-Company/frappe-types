@@ -4,8 +4,8 @@ Typescript type definition generator for Frappe DocTypes.
 
 <br />
 <p align="center">
-  <a href="https://github.com/nikkothari22/frappe-types"><img src="https://img.shields.io/maintenance/yes/2023?style=flat-square" /></a>
-  <a href="https://github.com/nikkothari22/frappe-types"><img src="https://img.shields.io/github/license/nikkothari22/frappe-types?style=flat-square" /></a>
+  <a href="https://github.com/nikkothari22/frappe-types"><img src="https://img.shields.io/maintenance/yes/2024?style=flat-square" /></a>
+  <a href="https://github.com/nikkothari22/frappe-types"><img src="https://img.shields.io/github/license/The-Commit-Company/frappe-types?style=flat-square" /></a>
 </p>
 
 <br/>
