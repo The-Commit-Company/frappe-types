@@ -82,7 +82,7 @@ def generate_type_definition_content(doctype, module_path, generate_child_tables
         file_defination, statement = get_field_type_definition(
             field, doctype, module_path, generate_child_tables)
 
-        if statement:
+        if statement and import_statement.find(statement) == -1:
             import_statement += statement
         
         content += "\t" + file_defination + "\n"
