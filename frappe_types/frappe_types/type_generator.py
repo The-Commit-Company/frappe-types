@@ -15,6 +15,10 @@ def create_type_definition_file(doc, method=None):
     if frappe_types_pause_generation:
         print("Frappe Types is paused")
         return
+    
+    if frappe.flags.in_patch or frappe.flags.in_migrate or frappe.flags.in_install or frappe.flags.in_setup_wizard:
+        print("Skipping type generation in patch, migrate, install or setup wizard")
+        return
 
     doctype = doc
 
