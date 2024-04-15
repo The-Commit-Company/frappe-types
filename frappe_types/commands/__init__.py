@@ -37,7 +37,7 @@ def generate_types_file_from_doctype(context, app, doctype, generate_child_table
         finally:
             frappe.destroy()
     if not context.sites:
-        raise SiteNotSpecifiedError
+        raise frappe.SiteNotSpecifiedError
 
 
 @click.command("generate-types-for-module")

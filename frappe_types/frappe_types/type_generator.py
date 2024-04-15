@@ -76,7 +76,10 @@ def generate_type_definition_content(doctype, module_path, generate_child_tables
     content = "export interface " + doctype.name.replace(" ", "") + "{\n"
 
     # Boilerplate types for all documents
-    content += "\tcreation: string\n\tname: string\n\tmodified: string\n\towner: string\n\tmodified_by: string\n\tdocstatus: 0 | 1 | 2\n\tparent?: string\n\tparentfield?: string\n\tparenttype?: string\n\tidx?: number\n"
+    name_field_type = "string"
+    if doctype.naming_rule == "Autoincrement":
+        name_field_type = "number"
+    content += f"\tname: {name_field_type}\n\tcreation: string\n\tmodified: string\n\towner: string\n\tmodified_by: string\n\tdocstatus: 0 | 1 | 2\n\tparent?: string\n\tparentfield?: string\n\tparenttype?: string\n\tidx?: number\n"
 
     for field in doctype.fields:
         if field.fieldtype in ["Section Break", "Column Break", "HTML", "Button", "Fold", "Heading", "Tab Break", "Break"]:
