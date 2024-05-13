@@ -56,9 +56,6 @@ def create_type_definition_file(doc, method=None):
 
                 generate_type_definition_file(
                     doctype, module_path, generate_child_tables=False)
-            else:
-                return
-
 
 def generate_type_definition_file(doctype, module_path, generate_child_tables=False):
 
